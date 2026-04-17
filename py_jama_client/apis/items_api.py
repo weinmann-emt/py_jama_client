@@ -11,6 +11,7 @@ Example usage:
 
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import ClientResponse, JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -34,7 +35,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return all items in the specified project.
         Args:
@@ -63,7 +64,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         This method will return a singular item of a specified item id
         Args:
@@ -92,7 +93,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         This method will post a new item to Jama Connect.
 
@@ -181,7 +182,7 @@ class ItemsAPI:
         *args,
         params: dict | None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         add an item to an existing pool of global ids
         Args:
@@ -363,7 +364,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all items tagged with the specified ID
 
@@ -390,7 +391,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all the upstream relationships for the item with the
         specified API ID.
@@ -417,7 +418,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all the downstream related items for the item with
         the specified API ID.
@@ -445,7 +446,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all the downstream relationships for the item with
         the specified API ID.
@@ -464,7 +465,7 @@ class ItemsAPI:
 
     def get_items_upstream_related(
         self, item_id: int, *args, params: dict | None = None, **kwargs
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all the upstream related items for the item with the
         specified API ID.
@@ -485,7 +486,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all valid workflow transitions that can be made with the specified
         API ID
@@ -508,7 +509,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return list of the child items of the item passed to
         the function.
@@ -534,7 +535,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all synchronized items for the item with the specified ID
 
@@ -558,7 +559,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the sync status for the synced item with the specified ID
 
@@ -656,7 +657,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all versions for the item with the specified ID
 
@@ -678,7 +679,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the numbered version for the item with the specified ID
 
@@ -700,7 +701,7 @@ class ItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the snapshot of the item at the specified version
 
@@ -715,7 +716,7 @@ class ItemsAPI:
         JamaClient.handle_response_status(response)
         return ClientResponse.from_response(response)
 
-    def get_item_lock(self, item_id: int, params: dict | None = None):
+    def get_item_lock(self, item_id: int, params: dict | None = None) -> "ClientResponse[dict[str, Any]]":
         """
         Get the locked state, last locked date, and last locked by user for
         the item with the specified ID
@@ -770,7 +771,7 @@ class ItemsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Return all tags for the item with the specified ID
 

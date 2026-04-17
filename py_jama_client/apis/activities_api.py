@@ -10,6 +10,7 @@ Example usage:
 """
 
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -39,7 +40,7 @@ class ActivitiesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all activities in the project with the specified ID
         GET /activities/
@@ -95,7 +96,7 @@ class ActivitiesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the activity with the specified ID
         GET /activities/{activityId}
@@ -119,7 +120,7 @@ class ActivitiesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all items affected by the activity with the specified ID
         GET: /activities/{activityId}/affecteditems
@@ -141,7 +142,7 @@ class ActivitiesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Restore item(s) associated with a delete activity.
         POST: /activities/{activityId}/restore
@@ -170,7 +171,7 @@ class ActivitiesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all activities at the admin level
         GET: /activities/adminActivity

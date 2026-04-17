@@ -10,6 +10,7 @@ Example usage:
 """
 
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -33,7 +34,7 @@ class PickListsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all the pick lists
 
@@ -54,7 +55,7 @@ class PickListsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Gets all a singular picklist
 
@@ -79,7 +80,7 @@ class PickListsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Gets all all the picklist options for a single picklist
         Args:

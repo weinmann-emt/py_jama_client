@@ -10,6 +10,7 @@ Example usage:
 
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -34,7 +35,7 @@ class BaselinesAPI:
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         params: dict | None = None,
         **kwargs,
-    ) -> ClientResponse:
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all baselines in the project with the specified ID
         GET: /baselines/
@@ -60,7 +61,7 @@ class BaselinesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the baseline with the specified ID
         GET: /baselines/{baselineId}/
@@ -89,7 +90,7 @@ class BaselinesAPI:
         baseline_status_pick_list_option: int,
         *args,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Update the baseline with the specified ID
         PUT: /baselines/{baselineId}/
@@ -140,7 +141,7 @@ class BaselinesAPI:
         baseline_id: int,
         *args,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get related review link
         GET: /baselines/{baselineId}/reviewlink
@@ -164,7 +165,7 @@ class BaselinesAPI:
         params: dict | None = None,
         allowed_results_per_page: int = DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all baseline items in a baseline with the specified ID
         Args:
@@ -185,7 +186,7 @@ class BaselinesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the baseline item with the specified ID in a baseline with the
         specified ID
@@ -212,7 +213,7 @@ class BaselinesAPI:
         params: dict | None = None,
         allowed_results_per_page: int = DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all versioned relationships for the item in the baseline
         GET:

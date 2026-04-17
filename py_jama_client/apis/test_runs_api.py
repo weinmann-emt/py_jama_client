@@ -9,10 +9,13 @@ Example usage:
     >>> test_runs = test_runs_api.get_test_runs()
 """
 
+import json
 import logging
 
 from py_jama_client.client import JamaClient
 from py_jama_client.exceptions import APIException, CoreException
+from py_jama_client.models import JamaTestRun, TestRunUpdateRequest
+from py_jama_client.response import ClientResponse
 
 py_jama_client_logger = logging.getLogger("py_jama_client")
 
@@ -28,19 +31,28 @@ class TestRunsAPI:
     def put_test_run(
         self,
         test_run_id: int,
-        data: dict | None = None,
+        data: "TestRunUpdateRequest | None" = None,
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
-        """This method will post a test run to Jama through the API"""
+    ) -> "ClientResponse[JamaTestRun]":
+        """
+        Update a test run.
+
+        Args:
+            test_run_id: the api id of the test run to update
+            data: request body with the fields to update (e.g. testRunStatus, actualResults)
+
+        Returns:
+            ClientResponse[JamaTestRun]: the updated test run
+        """
         resource_path = f"testruns/{test_run_id}"
         headers = {"content-type": "application/json"}
         try:
             response = self.client.put(
                 resource_path,
                 params,
-                data=data,
+                data=json.dumps(data) if data is not None else None,
                 headers=headers,
                 **kwargs,
             )
@@ -48,4 +60,4 @@ class TestRunsAPI:
             py_jama_client_logger.error(err)
             raise APIException(str(err))
         JamaClient.handle_response_status(response)
-        return response.status_code
+        return ClientResponse.from_response(response)

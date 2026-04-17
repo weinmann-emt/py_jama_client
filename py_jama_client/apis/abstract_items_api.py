@@ -10,10 +10,12 @@ Example usage:
 """
 
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
 from py_jama_client.exceptions import APIException, CoreException
+from py_jama_client.models import JamaAbstractItem
 from py_jama_client.response import ClientResponse
 
 py_jama_client_logger = logging.getLogger("py_jama_client")
@@ -42,7 +44,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[JamaAbstractItem]]":
         """
         Search for items, test plans, test cycles, test runs, or attachments
         GET: /abstractitems/
@@ -112,7 +114,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[JamaAbstractItem]":
         """
         Get any item, test plan, test cycle, test run, or attachment with the specified ID
         GET: /abstractitems/{item_id}
@@ -137,7 +139,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all versioned relationships that were associated to the item at the specified time
         GET: /abstractitems/{item_id}/versionedrelationships
@@ -168,7 +170,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all versions for the item with the specified ID
         GET: /abstractitems/{item_id}/versions
@@ -193,7 +195,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the numbered version for the item with the specified ID
         GET: /abstractitems/{item_id}/versions/{version_num}/
@@ -218,7 +220,7 @@ class AbstractItemsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[JamaAbstractItem]":
         """
         Get the snapshot of the item at the specified version
         GET: /abstractitems/{item_id}/versions/{version_num}/versioneditem/

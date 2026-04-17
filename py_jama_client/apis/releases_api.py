@@ -12,6 +12,7 @@ Example usage:
 import datetime
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -36,7 +37,7 @@ class ReleasesAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all releases in the project with the specified ID
 
@@ -66,7 +67,7 @@ class ReleasesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the release with the specified ID
 
@@ -95,7 +96,7 @@ class ReleasesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Create a new release
 
@@ -140,7 +141,7 @@ class ReleasesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Update the release with the specified ID
 
