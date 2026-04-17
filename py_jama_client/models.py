@@ -146,12 +146,15 @@ class TestRunFields(TypedDict, total=False):
 # Top-level item TypedDicts
 # ---------------------------------------------------------------------------
 
-class _JamaItemBase(TypedDict, total=False):
+class _JamaItemBaseRequired(TypedDict, total=True):
     id: int
     documentKey: str
     globalId: str
     itemType: int
     project: int
+
+
+class _JamaItemBase(_JamaItemBaseRequired, total=False):
     childItemType: int | None
     createdDate: str
     modifiedDate: str
