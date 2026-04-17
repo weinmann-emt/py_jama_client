@@ -14,6 +14,7 @@ import logging
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
 from py_jama_client.exceptions import APIException, CoreException
+from py_jama_client.models import JamaTestCycle, JamaTestRun
 from py_jama_client.response import ClientResponse
 
 py_jama_client_logger = logging.getLogger("py_jama_client")
@@ -33,7 +34,7 @@ class TestCyclesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[JamaTestCycle]":
         """
         This method will return JSON data about the test cycle specified by
         the test cycle id.
@@ -41,8 +42,8 @@ class TestCyclesAPI:
         Args:
             test_cycle_id: the api id of the test cycle to fetch
 
-        Returns: a dictionary object that represents the test cycle
-
+        Returns:
+            ClientResponse[JamaTestCycle]: the requested test cycle
         """
         resource_path = f"testcycles/{test_cycle_id}"
         try:
@@ -58,14 +59,18 @@ class TestCyclesAPI:
         test_cycle_id: int,
         *args,
         params: dict | None = None,
-        allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
+        allowed_results_per_page: int = DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[JamaTestRun]]":
         """
         This method will return all test runs associated with the specified
-        test cycle.  Test runs will be returned as a list of json objects.
+        test cycle.
+
         Args:
-            test_cycle_id: (int) The id of the test cycle
+            test_cycle_id: The id of the test cycle
+
+        Returns:
+            ClientResponse[list[JamaTestRun]]: all test runs for the cycle
         """
         resource_path = f"testcycles/{test_cycle_id}/testruns"
         return self.client.get_all(

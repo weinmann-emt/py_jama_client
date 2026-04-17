@@ -10,6 +10,7 @@ Example usage:
 """
 
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -33,7 +34,7 @@ class ItemTypesAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return all item types of the across all projects of
         the Jama Connect instance.
@@ -57,7 +58,7 @@ class ItemTypesAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Gets item type information for a specific item type id.
 

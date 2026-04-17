@@ -11,6 +11,7 @@ Example usage:
 
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import ClientResponse, JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -35,7 +36,7 @@ class ProjectsAPI:
         self,
         params: dict | None = None,
         allowed_results_per_page: int = DEFAULT_ALLOWED_RESULTS_PER_PAGE,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return all projects as JSON object
         optional: if project_id is specified, it will return a single project
@@ -50,7 +51,7 @@ class ProjectsAPI:
             resource_path, params, allowed_results_per_page=allowed_results_per_page
         )
 
-    def get_project_by_id(self, project_id: int, params: dict | None = None):
+    def get_project_by_id(self, project_id: int, params: dict | None = None) -> "ClientResponse[dict[str, Any]]":
         """
         This method will return a single project as JSON object
         Args:
@@ -68,7 +69,7 @@ class ProjectsAPI:
         JamaClient.handle_response_status(response)
         return ClientResponse.from_response(response)
 
-    def get_relationship_rule_set_projects(self, id: int):
+    def get_relationship_rule_set_projects(self, id: int) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return the projects that have a given relationship
         rule set defined.
@@ -88,7 +89,7 @@ class ProjectsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         This Method will make a new attachment object in the specified project
         :param project_id: The integer project ID to create the attachment in.

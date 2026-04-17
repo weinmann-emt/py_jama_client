@@ -11,6 +11,7 @@ Example usage:
 
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -34,7 +35,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the attachment with the specified ID
         GET: /attachments/{attachmentId}/
@@ -120,7 +121,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the locked state, last locked date, and last locked by user for
         the item with the specified ID
@@ -145,7 +146,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Update the locked state of the item with the specified ID
         PUT: /attachments/{attachmentId}/lock
@@ -173,7 +174,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Get all versions for the item with the specified ID
         GET: /attachments/{attachmentId}/versions/
@@ -193,7 +194,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the numbered version for the item with the specified ID
         GET: /attachments/{attachmentId}/versions/{versionNum}
@@ -214,7 +215,7 @@ class AttachmentsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Get the snapshot of the attachment at the specified version
         GET: /attachments/{attachmentId}/versions/{versionNum}/versionedItem

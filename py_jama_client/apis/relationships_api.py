@@ -11,6 +11,7 @@ Example usage:
 
 import json
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
@@ -35,7 +36,7 @@ class RelationshipsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         Returns a list of all relationships of a specified project
 
@@ -84,7 +85,7 @@ class RelationshipsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will get all of the resources specified by the resource
         parameter, if an id or some other parameter is required for the
@@ -140,7 +141,7 @@ class RelationshipsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return one page of results from the specified
         resource type.
@@ -169,7 +170,7 @@ class RelationshipsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Returns a specific relationship object of a specified relationship ID
 
@@ -196,7 +197,7 @@ class RelationshipsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Args:
             from_item: integer API id of the source item
@@ -238,7 +239,7 @@ class RelationshipsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Args:
             relationship_id: integer API id of the relationship
@@ -304,7 +305,7 @@ class RelationshipsAPI:
         JamaClient.handle_response_status(response)
         return response.status_code
 
-    def get_relationship_rule_sets(self):
+    def get_relationship_rule_sets(self) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return all relationship rule sets across all projects
         of the Jama Connect instance.
@@ -316,7 +317,7 @@ class RelationshipsAPI:
         resource_path = "relationshiprulesets/"
         return self.client.get_all(resource_path)
 
-    def get_relationship_rule_set(self, relationship_id: int):
+    def get_relationship_rule_set(self, relationship_id: int) -> "ClientResponse[dict[str, Any]]":
         """
         This method will return the relationship rule sets by id.
 
@@ -335,7 +336,7 @@ class RelationshipsAPI:
         params: dict | None = None,
         allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
         **kwargs,
-    ):
+    ) -> "ClientResponse[list[dict[str, Any]]]":
         """
         This method will return all relationship types of the across all
         projects of the Jama Connect instance.
@@ -357,7 +358,7 @@ class RelationshipsAPI:
         *args,
         params: dict | None = None,
         **kwargs
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Gets relationship type information for a specific relationship type id.
 

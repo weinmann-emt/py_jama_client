@@ -1,19 +1,22 @@
 __all__ = ["ClientResponse"]
 
 from dataclasses import dataclass
+from typing import Any, Generic, TypeVar
 
 from httpx import Response
 
+T = TypeVar("T")
+
 
 @dataclass
-class ClientResponse:
-    meta: dict
-    links: dict
-    linked: dict
-    data: list
+class ClientResponse(Generic[T]):
+    meta: dict[str, Any]
+    links: dict[str, Any]
+    linked: dict[str, Any]
+    data: T
 
     @classmethod
-    def from_response(cls, response: Response):
+    def from_response(cls, response: Response) -> "ClientResponse[Any]":
         """
         Parse a response from the Jama API into a ClientResponse object.
 
@@ -32,10 +35,8 @@ class ClientResponse:
             data=response_json.get("data", {}),
         )
 
-    def to_dict(self):
-        """
-        Convert client response object to dictionary.
-        """
+    def to_dict(self) -> dict[str, Any]:
+        """Convert client response object to dictionary."""
         return {
             "meta": self.meta,
             "links": self.links,
@@ -43,9 +44,9 @@ class ClientResponse:
             "data": self.data,
         }
 
-    def __add__(self, other):
+    def __add__(self, other: "ClientResponse[T]") -> "ClientResponse[T]":
         self.meta.update(other.meta)
         self.links.update(other.links)
         self.linked.update(other.linked)
-        self.data += other.data
+        self.data += other.data  # type: ignore[operator]
         return self

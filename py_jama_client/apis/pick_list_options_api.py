@@ -11,6 +11,7 @@ Example usage:
 """
 
 import logging
+from typing import Any
 
 from py_jama_client.client import JamaClient
 from py_jama_client.exceptions import APIException, CoreException
@@ -33,7 +34,7 @@ class PickListOptionsAPI:
         *args,
         params: dict | None = None,
         **kwargs,
-    ):
+    ) -> "ClientResponse[dict[str, Any]]":
         """
         Fetches a single picklist option from the API
         Args:
