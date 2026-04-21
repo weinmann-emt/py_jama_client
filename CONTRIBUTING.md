@@ -33,6 +33,9 @@ be queried and the first one will be used.
 - `RELATIONSHIP_TYPE_ID`
 - `RELEASE_ID`
 - `TAG_ID`
+- `TEST_PLAN_ID`
+- `TEST_GROUP_ID`
+- `TEST_GROUP_TESTCASE_ID`
 
 All of these environment variables can be placed in a _`.env`_ file to
 be loaded automatically at runtime. This is especially useful for running tests

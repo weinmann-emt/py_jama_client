@@ -10,6 +10,7 @@ from py_jama_client.apis.projects_api import ProjectsAPI
 from py_jama_client.apis.relationships_api import RelationshipsAPI
 from py_jama_client.apis.releases_api import ReleasesAPI
 from py_jama_client.apis.tags_api import TagsAPI
+from py_jama_client.apis.test_plans_api import TestPlansAPI
 from py_jama_client.apis.users_api import UsersAPI
 from py_jama_client.client import JamaClient
 from py_jama_client.response import ClientResponse
@@ -318,3 +319,54 @@ def current_user(get_test_jama_client):
     users_api = UsersAPI(get_test_jama_client)
     user = users_api.get_current_user().data
     yield user
+
+
+@pytest.fixture(scope="session")
+def real_test_plan(get_test_jama_client, real_project):
+    if "TEST_PLAN_ID" in os.environ:
+        return os.environ.get("TEST_PLAN_ID")
+    test_plans_api = TestPlansAPI(get_test_jama_client)
+    test_plans = test_plans_api.get_testplans(project_id=real_project).data
+    if test_plans == []:
+        raise ValueError(
+            """
+                Unable to identify a viable test plan for sample testing
+            """
+        )
+    else:
+        return test_plans[0]["id"]
+
+
+@pytest.fixture(scope="session")
+def real_test_group(get_test_jama_client, real_test_plan):
+    if "TEST_GROUP_ID" in os.environ:
+        return os.environ.get("TEST_GROUP_ID")
+    test_plans_api = TestPlansAPI(get_test_jama_client)
+    test_groups = test_plans_api.get_testplans_testgroups(testplan_id=real_test_plan).data
+    if test_groups == []:
+        raise ValueError(
+            """
+                Unable to identify a viable test group for sample testing
+            """
+        )
+    else:
+        return test_groups[0]["id"]
+
+
+@pytest.fixture(scope="session")
+def real_test_group_testcase(get_test_jama_client, real_test_plan, real_test_group):
+    if "TEST_GROUP_TESTCASE_ID" in os.environ:
+        return os.environ.get("TEST_GROUP_TESTCASE_ID")
+    test_plans_api = TestPlansAPI(get_test_jama_client)
+    testcases = test_plans_api.get_testplans_testgroups_testcases(
+        testplan_id=real_test_plan, testgroup_id=real_test_group
+    ).data
+    if testcases == []:
+        raise ValueError(
+            """
+                Unable to identify a viable test case in the test
+                group for sample testing
+            """
+        )
+    else:
+        return testcases[0]["id"]
