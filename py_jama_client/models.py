@@ -140,6 +140,7 @@ class TestRunFields(TypedDict, total=False):
     duration: str
     testRunStatus: TestRunStatus
     workflow_status: str
+    executionDate: str # ISO8601 date string
 
 
 # ---------------------------------------------------------------------------
