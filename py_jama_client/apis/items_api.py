@@ -502,6 +502,42 @@ class ItemsAPI:
         resource_path = f"items/{item_id}/workflowtransitionoptions"
         return self.client.get_all(resource_path, params, **kwargs)
 
+    def post_item_workflow_transitions(
+        self,
+        item_id: int,
+        transition_id: str,
+        comment: str,
+        *args,
+        params: dict | None = None,
+        **kwargs,
+    ) -> "ClientResponse[list[dict[str, Any]]]":
+        """
+        Perform a workflow transition on an item with the specified API ID
+
+        Args:
+            item_id: the api id of the item
+            transition_id: the id of the workflow transition to perform
+            comment: a comment to attach to the workflow transition
+
+        Returns: the response from the API after performing the workflow transition
+        """
+        body = {"transitionId": transition_id, "comment": comment}
+        resource_path = f"items/{item_id}/workflowtransitions"
+        headers = {"content-type": "application/json"}
+        try:
+            response = self.client.post(
+                resource_path,
+                params,
+                data=json.dumps(body),
+                headers=headers,
+                **kwargs,
+            )
+        except CoreException as err:
+            py_jama_client_logger.error(err)
+            raise APIException(str(err))
+        JamaClient.handle_response_status(response)
+        return ClientResponse.from_response(response)
+
     def get_item_children(
         self,
         item_id: int,
