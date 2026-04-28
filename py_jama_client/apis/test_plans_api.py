@@ -58,6 +58,31 @@ class TestPlansAPI:
             **kwargs,
         )
 
+    def get_testplans_testcycles(
+        self,
+        testplan_id: int,
+        *args,
+        params: dict | None = None,
+        allowed_results_per_page=DEFAULT_ALLOWED_RESULTS_PER_PAGE,
+        **kwargs,
+    ) -> "ClientResponse[list[JamaTestCycle]]":
+        """
+        Get all test cycles for the test plan with the specified ID.
+
+        Args:
+            testplan_id (int): The API id of the test plan.
+
+        Returns:
+            ClientResponse: List of test cycles in the test plan.
+        """
+        resource_path = f"testplans/{testplan_id}/testcycles"
+        return self.client.get_all(
+            resource_path,
+            params,
+            allowed_results_per_page=allowed_results_per_page,
+            **kwargs,
+        )
+
     def post_testplans_testcycles(
         self,
         testplan_id: int,
