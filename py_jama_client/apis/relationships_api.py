@@ -349,7 +349,10 @@ class RelationshipsAPI:
         """
         resource_path = "relationshiptypes/"
         return self.client.get_all(
-            resource_path, allowed_results_per_page=allowed_results_per_page
+            resource_path,
+            params,
+            allowed_results_per_page=allowed_results_per_page,
+            **kwargs,
         )
 
     def get_relationship_type(
