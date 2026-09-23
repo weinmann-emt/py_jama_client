@@ -89,7 +89,7 @@ class ItemsAPI:
         child_item_type_id: int,
         location: dict,
         fields: dict,
-        global_id: int | None = None,
+        global_id: str | None = None,
         *args,
         params: dict | None = None,
         **kwargs,
@@ -180,7 +180,7 @@ class ItemsAPI:
         source_item: int,
         pool_item: int,
         *args,
-        params: dict | None,
+        params: dict | None = None,
         **kwargs,
     ) -> "ClientResponse[dict[str, Any]]":
         """
