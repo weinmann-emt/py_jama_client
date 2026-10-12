@@ -32,9 +32,14 @@ class UnauthorizedException(APIException):
 
 class TooManyRequestsException(APIException):
     """This exception is thrown whenever the api returns a 429 too many
-    requests response."""
+    requests response.
 
-    pass
+    ``retry_after`` holds the response's Retry-After header in seconds, or
+    None if Jama did not send one."""
+
+    def __init__(self, message, status_code=None, reason=None, retry_after=None):
+        super().__init__(message, status_code, reason)
+        self.retry_after = retry_after
 
 
 class ResourceNotFoundException(APIException):
