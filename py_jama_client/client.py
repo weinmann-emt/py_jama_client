@@ -9,15 +9,22 @@ __all__ = ["JamaClient"]
 import json
 import logging
 import math
+import random
 import ssl
 import time
 import typing
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 
 import httpx
 import urllib3
 from httpx import Response
 
-from py_jama_client.constants import DEFAULT_ALLOWED_RESULTS_PER_PAGE
+from py_jama_client.constants import (
+    DEFAULT_ALLOWED_RESULTS_PER_PAGE,
+    DEFAULT_RETRY_BACKOFF,
+    RETRY_JITTER,
+)
 from py_jama_client.exceptions import (
     AlreadyExistsException,
     APIClientException,
@@ -38,6 +45,44 @@ urllib3.disable_warnings()
 
 py_jama_client_logger = logging.getLogger("py_jama_client")
 
+TOO_MANY_REQUESTS = 429
+
+
+def retry_after_seconds(response: Response) -> float | None:
+    """Return the response's Retry-After header in seconds (it may be given as
+    delta-seconds or as an HTTP-date), or None if it is absent or invalid."""
+    value = response.headers.get("Retry-After", "").strip()
+    if not value:
+        return None
+    try:
+        return max(float(value), 0.0)
+    except ValueError:
+        pass
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=UTC)
+    return max((when - datetime.now(UTC)).total_seconds(), 0.0)
+
+
+def _retry_delay(response: Response, step: float, max_wait: float) -> float | None:
+    """Seconds to wait before retrying the request, or None not to retry.
+
+    Only throttled (HTTP 429) requests are retried, after the backoff ``step``
+    or after the response's Retry-After if that is not longer than ``max_wait``
+    (if it is, the caller gets the 429 and its ``retry_after`` instead).
+    """
+    if response.status_code != TOO_MANY_REQUESTS:
+        return None
+    retry_after = retry_after_seconds(response)
+    if retry_after is None:
+        return step + random.uniform(0.0, RETRY_JITTER)
+    if retry_after > max_wait:
+        return None
+    return retry_after + random.uniform(0.0, RETRY_JITTER)
+
 
 class JamaClient:
     """
@@ -54,6 +99,7 @@ class JamaClient:
         oauth: bool = False,
         verify: typing.Union[bool, str, ssl.SSLContext] = True,
         timeout: int = 30,
+        retry_backoff: typing.Sequence[float] = DEFAULT_RETRY_BACKOFF,
     ):
         """
         Args:
@@ -67,6 +113,13 @@ class JamaClient:
                 identity of requested hosts. Either True (default CA bundle),
                 a path to an SSL certificate file, an ssl.SSLContext, or False.
             timeout: The timeout for the session
+            retry_backoff: Seconds to wait before each retry of a request
+                that Jama throttled (HTTP 429), plus up to a second of random
+                jitter. Defaults to Jama's recommended 3, 5, 8 and 13 seconds;
+                pass an empty sequence to disable retries. A Retry-After header
+                replaces the step's wait unless it exceeds the longest step, in
+                which case the 429 is returned right away. Once retries are
+                exhausted the 429 response is returned like any other.
         """
         # Instance variables
         self.__api_version = api_version
@@ -75,6 +128,7 @@ class JamaClient:
         self.__oauth = oauth
         self.__verify = verify
         self.__session = self.session_class(verify=verify, timeout=timeout)
+        self.__retry_backoff = tuple(retry_backoff)
 
         # Setup OAuth if needed.
         if self.__oauth:
@@ -98,43 +152,20 @@ class JamaClient:
     def delete(self, resource: str, **kwargs):
         """This method will perform a delete operation on the specified
         resource"""
-        url = self.__host_name + resource
-
-        if self.__oauth:
-            self.__check_oauth_token()
-            kwargs["headers"] = self.__add_auth_header(**kwargs)
-            return self.__session.delete(url, **kwargs)
-
-        return self.__session.delete(url, auth=self.__credentials, **kwargs)
+        return self.__request("DELETE", resource, **kwargs)
 
     def get(self, resource: str, params: dict | None = None, **kwargs):
         """This method will perform a get operation on the specified
         resource"""
-        url = self.__host_name + resource
-
-        if self.__oauth:
-            self.__check_oauth_token()
-            kwargs["headers"] = self.__add_auth_header(**kwargs)
-            return self.__session.get(url, params=params, **kwargs)
-
-        return self.__session.get(url, auth=self.__credentials, params=params, **kwargs)
+        return self.__request("GET", resource, params=params, **kwargs)
 
     def patch(
         self, resource: str, params: dict | None = None, data=None, json=None, **kwargs
     ):
         """This method will perform a patch operation to the specified
         resource"""
-        url = self.__host_name + resource
-
-        if self.__oauth:
-            self.__check_oauth_token()
-            kwargs["headers"] = self.__add_auth_header(**kwargs)
-            return self.__session.patch(
-                url, params=params, data=data, json=json, **kwargs
-            )
-
-        return self.__session.patch(
-            url, auth=self.__credentials, params=params, data=data, json=json, **kwargs
+        return self.__request(
+            "PATCH", resource, params=params, data=data, json=json, **kwargs
         )
 
     def post(
@@ -142,17 +173,8 @@ class JamaClient:
     ):
         """This method will perform a post operation to the specified
         resource."""
-        url = self.__host_name + resource
-
-        if self.__oauth:
-            self.__check_oauth_token()
-            kwargs["headers"] = self.__add_auth_header(**kwargs)
-            return self.__session.post(
-                url, params=params, data=data, json=json, **kwargs
-            )
-
-        return self.__session.post(
-            url, auth=self.__credentials, params=params, data=data, json=json, **kwargs
+        return self.__request(
+            "POST", resource, params=params, data=data, json=json, **kwargs
         )
 
     def put(
@@ -160,18 +182,41 @@ class JamaClient:
     ):
         """This method will perform a put operation to the specified
         resource"""
-        url = self.__host_name + resource
+        return self.__request(
+            "PUT", resource, params=params, data=data, json=json, **kwargs
+        )
 
+    def __request(self, method: str, resource: str, **kwargs) -> Response:
+        """Send a request, retrying it while Jama throttles it (HTTP 429).
+
+        Every attempt is a separate request through the session, so session
+        hooks see (and Jama counts) each retry."""
+        url = self.__host_name + resource
+        response = self.__send(method, url, **kwargs)
+        max_wait = max(self.__retry_backoff, default=0.0)
+        for attempt, step in enumerate(self.__retry_backoff, start=1):
+            delay = _retry_delay(response, step, max_wait)
+            if delay is None:
+                break
+            py_jama_client_logger.warning(
+                "Too many requests (HTTP 429); retry %d of %d in %.1f s.",
+                attempt,
+                len(self.__retry_backoff),
+                delay,
+            )
+            response.close()
+            time.sleep(delay)
+            response = self.__send(method, url, **kwargs)
+        return response
+
+    def __send(self, method: str, url: str, **kwargs) -> Response:
+        """Send one authenticated request through the session."""
         if self.__oauth:
             self.__check_oauth_token()
             kwargs["headers"] = self.__add_auth_header(**kwargs)
-            return self.__session.put(
-                url, data=data, params=params, json=json, **kwargs
-            )
+            return self.__session.request(method, url, **kwargs)
 
-        return self.__session.put(
-            url, auth=self.__credentials, data=data, params=params, json=json, **kwargs
-        )
+        return self.__session.request(method, url, auth=self.__credentials, **kwargs)
 
     def __check_oauth_token(self):
         if self.__token is None:
@@ -332,10 +377,16 @@ class JamaClient:
 
             try:
                 response_json = json.loads(response.text)
-                response_message = response_json.get("meta").get("message")
-
             except json.JSONDecodeError:
-                pass
+                response_json = None
+
+            # Bodies not from the Jama API itself (e.g. a gateway's 429) may
+            # lack the "meta" envelope.
+            meta = None
+            if isinstance(response_json, dict):
+                meta = response_json.get("meta")
+            if isinstance(meta, dict):
+                response_message = meta.get("message")
 
             # Log the error
             py_jama_client_logger.error(
@@ -366,12 +417,13 @@ class JamaClient:
                     reason=response_message,
                 )
 
-            if status == 429:
+            if status == TOO_MANY_REQUESTS:
                 raise TooManyRequestsException(
                     "Too many requests.  API throttling limit reached, or "
                     "system under maintenance.",
                     status_code=status,
                     reason=response_message,
+                    retry_after=retry_after_seconds(response),
                 )
 
             raise APIClientException(
